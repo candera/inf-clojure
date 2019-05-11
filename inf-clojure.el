@@ -329,9 +329,7 @@ comments."
   (let* ((lines (seq-filter (lambda (s) (not (inf-clojure--whole-comment-line-p s)))
                             (split-string string "[\r\n]" t))))
     (mapconcat (lambda (s)
-                 (if (not (string-match-p ";" s))
-                     (replace-regexp-in-string "\s+" " " s)
-                   (concat s "\n")))
+                 (concat s "\n"))
                lines " ")))
 
 (defun inf-clojure--sanitize-command (command)
@@ -355,7 +353,8 @@ customizations."
   (inf-clojure--set-repl-type proc)
   (let ((sanitized (inf-clojure--sanitize-command string)))
     (inf-clojure--log-string sanitized "----CMD->")
-    (comint-send-string proc sanitized)))
+    ;; Bugfix for https://github.com/clojure-emacs/inf-clojure/issues/152
+    (comint-send-string proc (concat string "\n"))))
 
 (defcustom inf-clojure-load-form "(clojure.core/load-file \"%s\")"
   "Format-string for building a Clojure expression to load a file.
